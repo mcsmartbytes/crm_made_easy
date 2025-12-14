@@ -3,14 +3,22 @@ import { createClient } from '@libsql/client';
 import * as schema from './schema';
 
 // Only create client on server-side where env vars are available
-const url = process.env.TURSO_DATABASE_URL;
-const authToken = process.env.TURSO_AUTH_TOKEN;
+const url = process.env.TURSO_DATABASE_URL?.trim();
+// Clean auth token - remove any whitespace/newlines that might have been added
+const authToken = process.env.TURSO_AUTH_TOKEN?.trim().replace(/\s+/g, '');
 
-const client = url && authToken
-  ? createClient({ url, authToken })
-  : null;
+let db: ReturnType<typeof drizzle> | null = null;
 
-export const db = client ? drizzle(client, { schema }) : null as any;
+try {
+  if (url && authToken) {
+    const client = createClient({ url, authToken });
+    db = drizzle(client, { schema });
+  }
+} catch (error) {
+  console.error('Failed to initialize database:', error);
+}
+
+export { db };
 
 // Helper to ensure db is available
 export function getDb() {
