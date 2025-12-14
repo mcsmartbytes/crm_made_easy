@@ -210,54 +210,48 @@ export default function DealsPage() {
       {loading ? (
         <div className="text-center py-8 text-slate-400">Loading deals...</div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-4 -mx-2 px-2">
           {stages.map((stage) => (
-            <div key={stage.id} className="flex-shrink-0 w-72">
-              <div className={`${stage.color} text-white px-4 py-2 rounded-t-lg flex items-center justify-between`}>
-                <span className="font-semibold">{stage.name}</span>
-                <span className="bg-white/20 px-2 py-0.5 rounded text-sm">
+            <div key={stage.id} className="flex-shrink-0 w-36 sm:w-44 md:w-52 lg:w-60">
+              <div className={`${stage.color} text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-t-lg flex items-center justify-between`}>
+                <span className="font-semibold text-xs sm:text-sm truncate">{stage.name}</span>
+                <span className="bg-white/20 px-1.5 sm:px-2 py-0.5 rounded text-xs ml-1">
                   {dealsByStage[stage.id]?.length || 0}
                 </span>
               </div>
-              <div className="bg-slate-100 rounded-b-lg p-3 min-h-[400px] space-y-3">
+              <div className="bg-slate-100 rounded-b-lg p-2 sm:p-3 min-h-[300px] sm:min-h-[400px] space-y-2 sm:space-y-3">
                 {dealsByStage[stage.id]?.map((deal) => (
                   <div
                     key={deal.id}
                     onClick={() => openModal(deal)}
-                    className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    className="bg-white rounded-lg p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                   >
-                    <h3 className="font-semibold text-slate-800 mb-2">{deal.title}</h3>
-                    <div className="space-y-1 text-sm">
-                      <div className="flex items-center gap-2 text-green-600 font-medium">
-                        <DollarSign size={14} />
+                    <h3 className="font-semibold text-slate-800 text-xs sm:text-sm mb-1 sm:mb-2 line-clamp-2">{deal.title}</h3>
+                    <div className="space-y-0.5 sm:space-y-1 text-xs sm:text-sm">
+                      <div className="flex items-center gap-1 sm:gap-2 text-green-600 font-medium">
+                        <DollarSign size={12} className="sm:w-3.5 sm:h-3.5" />
                         ${deal.value.toLocaleString()}
                       </div>
                       {deal.contact && (
-                        <div className="flex items-center gap-2 text-slate-500">
-                          <User size={14} />
-                          {deal.contact.firstName} {deal.contact.lastName}
-                        </div>
-                      )}
-                      {deal.expectedCloseDate && (
-                        <div className="flex items-center gap-2 text-slate-500">
-                          <Calendar size={14} />
-                          {new Date(deal.expectedCloseDate).toLocaleDateString()}
+                        <div className="flex items-center gap-1 sm:gap-2 text-slate-500 hidden sm:flex">
+                          <User size={12} className="sm:w-3.5 sm:h-3.5" />
+                          <span className="truncate">{deal.contact.firstName} {deal.contact.lastName}</span>
                         </div>
                       )}
                     </div>
-                    <div className="mt-3 flex items-center gap-2">
-                      <div className="flex-1 bg-slate-200 rounded-full h-1.5">
+                    <div className="mt-2 sm:mt-3 flex items-center gap-1 sm:gap-2">
+                      <div className="flex-1 bg-slate-200 rounded-full h-1 sm:h-1.5">
                         <div
-                          className="bg-blue-500 h-1.5 rounded-full"
+                          className="bg-blue-500 h-1 sm:h-1.5 rounded-full"
                           style={{ width: `${deal.probability}%` }}
                         />
                       </div>
-                      <span className="text-xs text-slate-500">{deal.probability}%</span>
+                      <span className="text-[10px] sm:text-xs text-slate-500">{deal.probability}%</span>
                     </div>
                   </div>
                 ))}
                 {dealsByStage[stage.id]?.length === 0 && (
-                  <p className="text-center text-slate-400 text-sm py-4">No deals</p>
+                  <p className="text-center text-slate-400 text-xs sm:text-sm py-4">No deals</p>
                 )}
               </div>
             </div>
