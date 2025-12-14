@@ -154,7 +154,7 @@ export default async function Dashboard() {
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Recent Activity</h2>
           {stats.recentActivities.length > 0 ? (
             <div className="space-y-4">
-              {stats.recentActivities.map((activity) => (
+              {stats.recentActivities.map((activity: { id: number; subject: string; type: string }) => (
                 <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-slate-50">
                   <Activity size={18} className="text-slate-500 mt-0.5" />
                   <div>
