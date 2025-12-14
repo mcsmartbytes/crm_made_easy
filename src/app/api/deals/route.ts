@@ -38,7 +38,7 @@ export async function GET() {
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error fetching deals:', error);
-    return NextResponse.json({ error: 'Failed to fetch deals' }, { status: 500 });
+    return NextResponse.json([]);
   }
 }
 
