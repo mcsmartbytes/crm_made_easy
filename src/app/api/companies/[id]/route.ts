@@ -6,6 +6,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!db) {
+    return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+  }
   try {
     const { id } = await params;
     const result = await db.select().from(companies).where(eq(companies.id, parseInt(id)));
@@ -25,6 +28,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!db) {
+    return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+  }
   try {
     const { id } = await params;
     const body = await request.json();
@@ -62,6 +68,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!db) {
+    return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+  }
   try {
     const { id } = await params;
     await db.delete(companies).where(eq(companies.id, parseInt(id)));

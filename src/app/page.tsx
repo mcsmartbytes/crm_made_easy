@@ -4,6 +4,18 @@ import { Users, Building2, TrendingUp, CheckSquare, DollarSign, Activity } from 
 import Link from 'next/link';
 
 async function getStats() {
+  // Return defaults if db not available
+  if (!db) {
+    return {
+      contacts: 0,
+      companies: 0,
+      deals: 0,
+      pendingTasks: 0,
+      wonDealsValue: 0,
+      recentActivities: [],
+    };
+  }
+
   try {
     const [contactCount] = await db.select({ count: count() }).from(contacts);
     const [companyCount] = await db.select({ count: count() }).from(companies);

@@ -3,6 +3,9 @@ import { db, contacts, companies } from '@/db';
 import { eq, desc } from 'drizzle-orm';
 
 export async function GET() {
+  if (!db) {
+    return NextResponse.json([]);
+  }
   try {
     const result = await db
       .select({
@@ -35,6 +38,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+  }
   try {
     const body = await request.json();
 
