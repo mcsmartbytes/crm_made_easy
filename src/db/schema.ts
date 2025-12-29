@@ -1,9 +1,21 @@
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';
 
+// Users table for authentication
+export const users = sqliteTable('users', {
+  id: text('id').primaryKey(), // UUID
+  email: text('email').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  fullName: text('full_name'),
+  companyName: text('company_name'),
+  createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  updatedAt: text('updated_at').default('CURRENT_TIMESTAMP'),
+});
+
 // Companies/Organizations
 export const companies = sqliteTable('companies', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').references(() => users.id), // Multi-tenancy
   name: text('name').notNull(),
   industry: text('industry'),
   website: text('website'),
@@ -21,6 +33,7 @@ export const companies = sqliteTable('companies', {
 // Contacts (Leads & Customers)
 export const contacts = sqliteTable('contacts', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').references(() => users.id), // Multi-tenancy
   companyId: integer('company_id').references(() => companies.id),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
@@ -43,6 +56,7 @@ export const contacts = sqliteTable('contacts', {
 // Deals/Opportunities (Sales Pipeline)
 export const deals = sqliteTable('deals', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').references(() => users.id), // Multi-tenancy
   contactId: integer('contact_id').references(() => contacts.id),
   companyId: integer('company_id').references(() => companies.id),
   title: text('title').notNull(),
@@ -60,6 +74,7 @@ export const deals = sqliteTable('deals', {
 // Activities (Calls, Emails, Meetings, Notes)
 export const activities = sqliteTable('activities', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').references(() => users.id), // Multi-tenancy
   contactId: integer('contact_id').references(() => contacts.id),
   companyId: integer('company_id').references(() => companies.id),
   dealId: integer('deal_id').references(() => deals.id),
@@ -76,6 +91,7 @@ export const activities = sqliteTable('activities', {
 // Tasks
 export const tasks = sqliteTable('tasks', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').references(() => users.id), // Multi-tenancy
   contactId: integer('contact_id').references(() => contacts.id),
   companyId: integer('company_id').references(() => companies.id),
   dealId: integer('deal_id').references(() => deals.id),
@@ -91,7 +107,8 @@ export const tasks = sqliteTable('tasks', {
 // Tags for flexible categorization
 export const tags = sqliteTable('tags', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  name: text('name').notNull().unique(),
+  userId: text('user_id').references(() => users.id), // Multi-tenancy
+  name: text('name').notNull(),
   color: text('color').default('#3B82F6'), // hex color
   createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
 });
@@ -106,6 +123,7 @@ export const contactTags = sqliteTable('contact_tags', {
 // Pipeline Stages (customizable)
 export const pipelineStages = sqliteTable('pipeline_stages', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').references(() => users.id), // Multi-tenancy
   name: text('name').notNull(),
   order: integer('order').notNull(),
   color: text('color').default('#3B82F6'),

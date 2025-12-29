@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, contacts, companies } from '@/db';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
+import { getCurrentUser } from '@/lib/auth';
 
 export async function GET() {
+  // Require authentication
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   if (!db) {
     return NextResponse.json([]);
   }
+
   try {
     const result = await db
       .select({
@@ -28,6 +36,7 @@ export async function GET() {
       })
       .from(contacts)
       .leftJoin(companies, eq(contacts.companyId, companies.id))
+      .where(eq(contacts.userId, user.id)) // Filter by user
       .orderBy(desc(contacts.createdAt));
 
     return NextResponse.json(result);
@@ -38,13 +47,21 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  // Require authentication
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   if (!db) {
     return NextResponse.json({ error: 'Database not available' }, { status: 503 });
   }
+
   try {
     const body = await request.json();
 
     const result = await db.insert(contacts).values({
+      userId: user.id, // Associate with user
       firstName: body.firstName,
       lastName: body.lastName,
       email: body.email || null,
