@@ -15,10 +15,7 @@ export async function POST() {
 
     const client = createClient({ url, authToken });
 
-    // Demo user ID - use existing or create one
-    const demoUserId = 'demo-user-001';
-
-    // Seed Companies
+    // Seed Companies (without user_id for existing schema)
     const companies = [
       { name: 'Acme Corporation', industry: 'Technology', website: 'https://acme.com', phone: '(555) 123-4567', email: 'info@acme.com', city: 'San Francisco', state: 'CA' },
       { name: 'GlobalTech Solutions', industry: 'Software', website: 'https://globaltech.io', phone: '(555) 234-5678', email: 'hello@globaltech.io', city: 'Austin', state: 'TX' },
@@ -29,10 +26,14 @@ export async function POST() {
 
     for (const company of companies) {
       await client.execute({
-        sql: `INSERT OR IGNORE INTO companies (user_id, name, industry, website, phone, email, city, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        args: [demoUserId, company.name, company.industry, company.website, company.phone, company.email, company.city, company.state]
+        sql: `INSERT OR IGNORE INTO companies (name, industry, website, phone, email, city, state) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: [company.name, company.industry, company.website, company.phone, company.email, company.city, company.state]
       });
     }
+
+    // Get company IDs
+    const companyResults = await client.execute(`SELECT id, name FROM companies ORDER BY id`);
+    const companyIds = companyResults.rows.map(r => r.id);
 
     // Seed Contacts
     const contacts = [
@@ -46,20 +47,16 @@ export async function POST() {
       { firstName: 'Lisa', lastName: 'Anderson', email: 'lisa.a@premier-mfg.com', phone: '(555) 888-8888', jobTitle: 'Quality Manager', status: 'inactive', companyIndex: 2 },
     ];
 
-    // Get company IDs first
-    const companyResults = await client.execute(`SELECT id, name FROM companies WHERE user_id = '${demoUserId}' ORDER BY id`);
-    const companyIds = companyResults.rows.map(r => r.id);
-
     for (const contact of contacts) {
       const companyId = companyIds[contact.companyIndex] || null;
       await client.execute({
-        sql: `INSERT OR IGNORE INTO contacts (user_id, company_id, first_name, last_name, email, phone, job_title, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        args: [demoUserId, companyId, contact.firstName, contact.lastName, contact.email, contact.phone, contact.jobTitle, contact.status]
+        sql: `INSERT OR IGNORE INTO contacts (company_id, first_name, last_name, email, phone, job_title, status) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: [companyId, contact.firstName, contact.lastName, contact.email, contact.phone, contact.jobTitle, contact.status]
       });
     }
 
     // Get contact IDs
-    const contactResults = await client.execute(`SELECT id, first_name FROM contacts WHERE user_id = '${demoUserId}' ORDER BY id`);
+    const contactResults = await client.execute(`SELECT id, first_name FROM contacts ORDER BY id`);
     const contactIds = contactResults.rows.map(r => r.id);
 
     // Seed Deals
@@ -78,14 +75,13 @@ export async function POST() {
       const contactId = contactIds[deal.contactIndex] || null;
       const companyId = companyIds[deal.companyIndex] || null;
       await client.execute({
-        sql: `INSERT OR IGNORE INTO deals (user_id, contact_id, company_id, title, value, stage, probability) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        args: [demoUserId, contactId, companyId, deal.title, deal.value, deal.stage, deal.probability]
+        sql: `INSERT OR IGNORE INTO deals (contact_id, company_id, title, value, stage, probability) VALUES (?, ?, ?, ?, ?, ?)`,
+        args: [contactId, companyId, deal.title, deal.value, deal.stage, deal.probability]
       });
     }
 
-    // Get deal IDs
-    const dealResults = await client.execute(`SELECT id FROM deals WHERE user_id = '${demoUserId}' ORDER BY id`);
-    const dealIds = dealResults.rows.map(r => r.id);
+    // Get contact IDs again for tasks/activities
+    const contactIdsForTasks = contactResults.rows.map(r => r.id);
 
     // Seed Tasks
     const tasks = [
@@ -98,10 +94,10 @@ export async function POST() {
     ];
 
     for (const task of tasks) {
-      const contactId = contactIds[task.contactIndex] || null;
+      const contactId = contactIdsForTasks[task.contactIndex] || null;
       await client.execute({
-        sql: `INSERT OR IGNORE INTO tasks (user_id, contact_id, title, description, priority, status) VALUES (?, ?, ?, ?, ?, ?)`,
-        args: [demoUserId, contactId, task.title, task.description, task.priority, task.status]
+        sql: `INSERT OR IGNORE INTO tasks (contact_id, title, description, priority, status) VALUES (?, ?, ?, ?, ?)`,
+        args: [contactId, task.title, task.description, task.priority, task.status]
       });
     }
 
@@ -117,10 +113,10 @@ export async function POST() {
     ];
 
     for (const activity of activities) {
-      const contactId = contactIds[activity.contactIndex] || null;
+      const contactId = contactIdsForTasks[activity.contactIndex] || null;
       await client.execute({
-        sql: `INSERT OR IGNORE INTO activities (user_id, contact_id, type, subject, description, outcome) VALUES (?, ?, ?, ?, ?, ?)`,
-        args: [demoUserId, contactId, activity.type, activity.subject, activity.description, activity.outcome]
+        sql: `INSERT OR IGNORE INTO activities (contact_id, type, subject, description, outcome) VALUES (?, ?, ?, ?, ?)`,
+        args: [contactId, activity.type, activity.subject, activity.description, activity.outcome]
       });
     }
 
