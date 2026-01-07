@@ -1,6 +1,6 @@
 'use client';
 
-import Sidebar from './Sidebar';
+import TopNav from './TopNav';
 import ProtectedRoute from './ProtectedRoute';
 
 interface AuthenticatedLayoutProps {
@@ -10,9 +10,9 @@ interface AuthenticatedLayoutProps {
 export default function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen bg-slate-100">
-        <Sidebar />
-        <main className="flex-1 lg:ml-0">
+      <div className="min-h-screen">
+        <TopNav />
+        <main className="max-w-7xl mx-auto px-4 py-6">
           {children}
         </main>
       </div>
