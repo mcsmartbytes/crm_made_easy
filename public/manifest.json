@@ -1,0 +1,20 @@
+{
+  "name": "CRM Made Easy",
+  "short_name": "CRM",
+  "description": "Customer relationship management for small businesses. Manage contacts, companies, deals, and activities.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "id": "crm-made-easy-app",
+  "icons": [
+    {
+      "src": "/globe.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
